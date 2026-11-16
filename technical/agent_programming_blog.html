@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="Agent programming explained from a computer scientist's perspective, including its underlying science, why it matters, and five unusual applications.">
+<title>Agent Programming: What It Is, Why We Need It, and 5 Unusual Applications</title>
+<style>
+  :root {
+    --bg: #0b1020;
+    --panel: #121a2b;
+    --panel-2: #172237;
+    --text: #e8edf5;
+    --muted: #a4b1c5;
+    --faint: #71819b;
+    --line: #29364d;
+    --cyan: #55d6e8;
+    --violet: #b7a1ff;
+    --green: #9ce4c2;
+    --max: 1120px;
+    --reading: 760px;
+    --radius: 18px;
+    --shadow: 0 24px 70px rgba(0,0,0,.22);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 28px; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse at 80% 0%, rgba(85,214,232,.09), transparent 35rem),
+      radial-gradient(ellipse at 0% 28%, rgba(167,139,250,.07), transparent 32rem),
+      var(--bg);
+    color: var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.78;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--cyan); text-decoration-thickness: 1px; text-underline-offset: 4px; }
+  a:hover { color: #a6f3fb; }
+  .page-shell { width: min(var(--max), calc(100% - 48px)); margin: 0 auto; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 27px 0; border-bottom: 1px solid rgba(164,177,197,.15);
+    color: var(--muted); font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+  }
+  .brand { color: var(--text); font-weight: 800; letter-spacing: .16em; }
+  .brand-mark { color: var(--cyan); }
+  .topbar-note { letter-spacing: .06em; text-transform: none; }
+  .hero { padding: clamp(58px, 9vw, 112px) 0 68px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px; color: var(--cyan);
+    font-size: .76rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--cyan); }
+  h1 {
+    max-width: 1000px; margin: 24px 0 22px;
+    font-size: clamp(2.65rem, 6.6vw, 5.5rem); line-height: 1.02;
+    letter-spacing: -.065em; font-weight: 780;
+  }
+  h1 .accent { color: var(--cyan); }
+  .dek { max-width: 760px; margin: 0; color: #c3cede; font-size: clamp(1.12rem, 2vw, 1.38rem); line-height: 1.65; }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: 12px 22px; margin-top: 30px; color: var(--faint); font-size: .84rem; }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-meta span::before { content: ""; width: 5px; height: 5px; background: var(--cyan); border-radius: 50%; }
+  .hero-art {
+    position: relative; overflow: hidden; margin-top: 52px; padding: clamp(22px, 4vw, 42px);
+    border: 1px solid var(--line); border-radius: 24px;
+    background: linear-gradient(135deg, rgba(23,34,55,.94), rgba(14,22,38,.96));
+    box-shadow: var(--shadow);
+  }
+  .art-label { margin: 0 0 24px; color: var(--faint); font-size: .72rem; font-weight: 750; letter-spacing: .16em; text-transform: uppercase; }
+  .path { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); align-items: center; gap: 12px; }
+  .path-node {
+    min-height: 94px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 14px 10px; border: 1px solid #34445e; border-radius: 14px;
+    background: rgba(9,16,31,.42); font-size: .9rem; font-weight: 650; line-height: 1.35;
+  }
+  .path-node small { margin-bottom: 8px; color: var(--cyan); font-size: .67rem; letter-spacing: .12em; text-transform: uppercase; }
+  .path-arrow { color: var(--cyan); text-align: center; font-size: 1.4rem; }
+  .art-caption { margin: 20px 0 0; color: var(--muted); font-size: .9rem; }
+  .article-layout { display: grid; grid-template-columns: 210px minmax(0, var(--reading)); gap: clamp(32px, 6vw, 84px); align-items: start; }
+  .toc { position: sticky; top: 24px; padding: 20px 0; }
+  .toc-title { margin: 0 0 15px; color: var(--faint); font-size: .7rem; letter-spacing: .15em; text-transform: uppercase; font-weight: 800; }
+  .toc a { display: block; padding: 8px 0 8px 14px; border-left: 1px solid var(--line); color: var(--muted); font-size: .85rem; line-height: 1.45; text-decoration: none; }
+  .toc a:hover { color: var(--cyan); border-left-color: var(--cyan); }
+  article { min-width: 0; padding-bottom: 80px; }
+  .section { padding: 12px 0 52px; }
+  .section + .section { border-top: 1px solid rgba(164,177,197,.15); padding-top: 52px; }
+  .section-kicker { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; color: var(--cyan); font-size: .73rem; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+  .section-kicker .number { color: var(--violet); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  h2 { margin: 0 0 22px; font-size: clamp(1.85rem, 3.8vw, 2.7rem); line-height: 1.13; letter-spacing: -.045em; }
+  h3 { margin: 32px 0 12px; font-size: 1.25rem; line-height: 1.3; letter-spacing: -.025em; }
+  p { margin: 0 0 19px; }
+  .lead { color: #d0d9e7; font-size: 1.12rem; }
+  strong { color: #f4f7fb; font-weight: 720; }
+  .highlight {
+    margin: 30px 0; padding: 24px 26px; border-left: 3px solid var(--cyan);
+    border-radius: 0 14px 14px 0; background: linear-gradient(90deg, rgba(85,214,232,.09), rgba(85,214,232,.025));
+  }
+  .highlight .label { display: block; margin-bottom: 7px; color: var(--cyan); font-size: .7rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+  .highlight p { margin: 0; font-size: 1.13rem; line-height: 1.6; }
+  .comparison { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 13px; margin: 28px 0; }
+  .compare-card { padding: 21px 19px; border: 1px solid var(--line); border-radius: 15px; background: rgba(18,26,43,.82); }
+  .compare-card .letter { display: block; margin-bottom: 14px; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .78rem; }
+  .compare-card h3 { margin: 0 0 10px; font-size: 1.03rem; }
+  .compare-card p { margin: 0; color: var(--muted); font-size: .91rem; line-height: 1.65; }
+  .compare-card.featured { border-color: rgba(85,214,232,.5); background: linear-gradient(145deg, rgba(85,214,232,.1), rgba(18,26,43,.9)); }
+  .steps { display: grid; gap: 0; margin: 24px 0 28px; padding: 0; list-style: none; counter-reset: step; }
+  .steps li { position: relative; display: grid; grid-template-columns: 38px 1fr; gap: 14px; padding: 0 0 19px; }
+  .steps li::before { counter-increment: step; content: counter(step, decimal-leading-zero); display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #3d526e; border-radius: 10px; color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; }
+  .steps li:not(:last-child)::after { content: ""; position: absolute; left: 16px; top: 38px; bottom: 0; width: 1px; background: #34445e; }
+  .steps strong { display: block; padding-top: 2px; }
+  .steps span { display: block; color: var(--muted); font-size: .92rem; }
+  .science-grid { display: grid; gap: 10px; margin: 25px 0 30px; }
+  .science-row { display: grid; grid-template-columns: minmax(150px,.85fr) 1.5fr; gap: 18px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: rgba(18,26,43,.62); }
+  .science-row strong { color: var(--cyan); }
+  .science-row span { color: var(--muted); font-size: .94rem; }
+  .architecture { margin: 28px 0; padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: #0e1728; }
+  .arch-stack { display: grid; justify-items: center; gap: 8px; }
+  .arch-box { width: min(100%, 430px); padding: 12px 16px; text-align: center; border: 1px solid #3b4e6a; border-radius: 10px; background: #152238; font-weight: 650; font-size: .92rem; }
+  .arch-box.primary { border-color: rgba(85,214,232,.65); color: var(--cyan); }
+  .arch-down { color: var(--cyan); line-height: 1; font-size: 1.25rem; }
+  .arch-branches { width: min(100%, 520px); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 5px; }
+  .arch-branch { padding: 13px; border: 1px solid var(--line); border-radius: 10px; text-align: center; font-size: .86rem; }
+  .arch-branch.good { color: var(--green); }
+  .arch-branch.retry { color: var(--violet); }
+  .arch-note { margin: 17px 0 0; color: var(--faint); text-align: center; font-size: .8rem; }
+  .application-list { display: grid; gap: 14px; margin: 28px 0; }
+  .application {
+    display: grid; grid-template-columns: 60px 1fr; gap: 18px; padding: 23px;
+    border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(135deg, rgba(23,34,55,.8), rgba(18,26,43,.7));
+  }
+  .app-number { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: rgba(85,214,232,.1); color: var(--cyan); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9rem; }
+  .application h3 { margin: 0 0 8px; font-size: 1.12rem; }
+  .application .app-field { margin: 0 0 12px; color: #d5caff; font-size: .82rem; line-height: 1.5; }
+  .application .app-field strong { color: var(--violet); }
+  .application .app-tease { margin: 0 0 14px; color: #d7e0ed; font-size: .91rem; line-height: 1.65; }
+  .application .app-tease em { color: var(--cyan); font-style: normal; font-weight: 700; }
+  .application p { margin: 0 0 12px; color: var(--muted); font-size: .94rem; line-height: 1.68; }
+  .prompt { padding: 13px 15px; border: 1px solid rgba(183,161,255,.24); border-radius: 10px; background: rgba(183,161,255,.06); color: #d6ccff; font-size: .88rem; line-height: 1.6; }
+  .prompt b { display: block; margin-bottom: 4px; color: var(--violet); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+  .closing {
+    margin-top: 20px; padding: clamp(25px, 5vw, 40px); border: 1px solid rgba(85,214,232,.28);
+    border-radius: 20px; background: linear-gradient(140deg, rgba(85,214,232,.08), rgba(183,161,255,.06));
+  }
+  .closing h2 { font-size: clamp(1.65rem, 3vw, 2.2rem); }
+  .closing p:last-child { margin-bottom: 0; }
+  .footnote { color: var(--faint); font-size: .83rem; }
+  footer { border-top: 1px solid rgba(164,177,197,.15); padding: 28px 0 42px; color: var(--faint); font-size: .8rem; }
+  footer .footer-inner { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  @media (max-width: 900px) {
+    .article-layout { grid-template-columns: 1fr; }
+    .toc { position: static; display: flex; flex-wrap: wrap; gap: 7px; padding: 0 0 25px; }
+    .toc-title { flex-basis: 100%; margin-bottom: 3px; }
+    .toc a { padding: 7px 10px; border: 1px solid var(--line); border-radius: 999px; font-size: .78rem; }
+  }
+  @media (max-width: 650px) {
+    body { font-size: 16px; }
+    .page-shell { width: min(100% - 32px, var(--max)); }
+    .topbar { align-items: flex-start; gap: 12px; font-size: .67rem; }
+    .topbar-note { max-width: 145px; text-align: right; }
+    .hero { padding-top: 58px; }
+    .path { grid-template-columns: 1fr; gap: 7px; }
+    .path-node { min-height: auto; padding: 13px; }
+    .path-arrow { transform: rotate(90deg); font-size: 1.1rem; }
+    .comparison { grid-template-columns: 1fr; }
+    .science-row { grid-template-columns: 1fr; gap: 5px; }
+    .application { grid-template-columns: 42px 1fr; gap: 12px; padding: 17px; }
+    .app-number { width: 38px; height: 38px; border-radius: 11px; }
+    .architecture { padding: 18px 13px; }
+    .arch-branches { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <header class="topbar">
+    <div class="brand">FIELDNOTES<span class="brand-mark"> / AI</span></div>
+    <div class="topbar-note">Ideas at the intersection of software and intelligence</div>
+  </header>
+
+  <header class="hero">
+    <div class="eyebrow">AI · Software Engineering · Agent Systems</div>
+    <h1>Agent Programming: What It Is, Why We Need It, and <span class="accent">5 Unusual Applications</span></h1>
+    <p class="dek">The most interesting part of agent programming isn't the AI itself. It's what happens when software stops merely executing instructions and starts figuring out which instructions it needs to execute to achieve a goal.</p>
+    <div class="hero-meta">
+      <span>A computer scientist's perspective</span>
+      <span>Concepts, architecture, applications</span>
+    </div>
+    <div class="hero-art" aria-label="Conceptual diagram of a goal-directed agent loop">
+      <p class="art-label">From fixed instructions to goal-directed action</p>
+      <div class="path">
+        <div class="path-node"><small>01 · Intent</small>Human goal</div>
+        <div class="path-arrow" aria-hidden="true">→</div>
+        <div class="path-node"><small>02 · Decide</small>Select an action</div>
+        <div class="path-arrow" aria-hidden="true">→</div>
+        <div class="path-node"><small>03 · Act</small>Use a tool</div>
+      </div>
+      <p class="art-caption">Then the agent observes the result, evaluates what it learned, and decides what to do next.</p>
+    </div>
+  </header>
+
+  <div class="article-layout">
+    <nav class="toc" aria-label="Table of contents">
+      <p class="toc-title">In this article</p>
+      <a href="#definition">01 · What is it?</a>
+      <a href="#science">02 · The science</a>
+      <a href="#why">03 · Why agents?</a>
+      <a href="#applications">04 · Five applications</a>
+      <a href="#reality">05 · The engineering reality</a>
+    </nav>
+
+    <article>
+      <section class="section" id="definition">
+        <div class="section-kicker"><span class="number">01</span> The core idea</div>
+        <h2>What Exactly Is Agent Programming?</h2>
+        <p class="lead">Agent programming is the practice of building software agents that can pursue goals by reasoning about a situation, choosing actions, using tools, observing results, and adapting their next steps.</p>
+        <p>An agent might use a language model as its reasoning engine, conventional code for precise operations, databases for information, and APIs to interact with the outside world.</p>
+        <p>The important distinction is that the programmer defines the goal, capabilities, and constraints, while the agent determines some of the steps needed to reach the goal.</p>
+
+        <h3>Three approaches to the same problem</h3>
+        <p>Imagine you want to identify Db2 tablespaces that are running out of space.</p>
+        <div class="comparison">
+          <div class="compare-card">
+            <span class="letter">APPROACH A</span>
+            <h3>Traditional programming</h3>
+            <p>Connect to Db2, execute a monitoring query, retrieve utilization, compare it against a threshold, and print warnings. The program follows the workflow you designed. To investigate why a tablespace is filling up, you must program the additional logic.</p>
+          </div>
+          <div class="compare-card">
+            <span class="letter">APPROACH B</span>
+            <h3>An LLM answering a question</h3>
+            <p>You ask, “Why is tablespace TS2 filling up?” An LLM might explain possible causes, but without relevant database evidence it cannot reliably determine the actual cause. Even with access, a simple tool-calling chatbot might stop after one query.</p>
+          </div>
+          <div class="compare-card featured">
+            <span class="letter">APPROACH C</span>
+            <h3>An agent</h3>
+            <p>You give it a goal: determine why TS2 is filling up, identify the tables responsible, estimate when it might run out of space, and recommend the safest corrective action. It chooses investigative steps based on what it discovers.</p>
+          </div>
+        </div>
+
+        <p>The agent might decide to:</p>
+        <ol class="steps">
+          <li><div><strong>Retrieve current utilization</strong><span>Establish how much space the tablespace is using now.</span></div></li>
+          <li><div><strong>Examine historical growth</strong><span>Compare current measurements with earlier observations.</span></div></li>
+          <li><div><strong>Identify the tables responsible</strong><span>Find the largest occupants and compare their growth rates.</span></div></li>
+          <li><div><strong>Investigate possible causes</strong><span>Check whether growth appears associated with particular workloads.</span></div></li>
+          <li><div><strong>Estimate and evaluate</strong><span>Project when the tablespace might become full and assess potential remedies.</span></div></li>
+          <li><div><strong>Check the evidence and report</strong><span>Explain the findings, assumptions, uncertainties, and recommended action.</span></div></li>
+        </ol>
+        <p>If a query fails, the agent can try an alternative. If the initial evidence is insufficient, it can investigate further.</p>
+        <p>You didn't explicitly program that exact sequence of investigative steps. You built a system capable of choosing them within the boundaries you established.</p>
+        <div class="highlight">
+          <span class="label">The essential difference</span>
+          <p>Traditional software follows a workflow you designed. An agent can choose and adapt parts of its workflow in response to what it discovers.</p>
+        </div>
+        <p>One important qualification: an agent does not necessarily discover the correct answer or genuinely understand the system it investigates. Its reasoning can be wrong, and its actions must be constrained and verified.</p>
+      </section>
+
+      <section class="section" id="science">
+        <div class="section-kicker"><span class="number">02</span> The foundations</div>
+        <h2>What Is the Underlying Science?</h2>
+        <p>I find it useful to think of agent programming as the intersection of five disciplines.</p>
+        <div class="science-grid" role="list">
+          <div class="science-row" role="listitem"><strong>Large language models</strong><span>Interpret goals, reason about context, and propose actions.</span></div>
+          <div class="science-row" role="listitem"><strong>Planning and search</strong><span>Break goals into smaller objectives and select possible action sequences.</span></div>
+          <div class="science-row" role="listitem"><strong>Control theory</strong><span>Observe a system, act on it, measure the response, and adjust.</span></div>
+          <div class="science-row" role="listitem"><strong>Software engineering</strong><span>Provide reliable tools, APIs, execution environments, and explicit constraints.</span></div>
+          <div class="science-row" role="listitem"><strong>Decision theory</strong><span>Evaluate alternatives, uncertainty, costs, and potential consequences.</span></div>
+        </div>
+        <p>These disciplines existed before today's LLM-based agents. The recent development is the ability to combine flexible language-based reasoning with executable software tools and iterative feedback.</p>
+
+        <h3>The fundamental architecture</h3>
+        <p>A simplified agent looks like this:</p>
+        <div class="architecture" role="img" aria-label="Agent architecture: human goal, agent or LLM, select action, execute tool, observe result, evaluate state, then finish or plan the next step">
+          <div class="arch-stack">
+            <div class="arch-box primary">Human goal</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box primary">Agent / LLM</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box">Select action</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box">Execute tool</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box">Observe result</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box">Evaluate state</div>
+            <div class="arch-down" aria-hidden="true">↓</div>
+            <div class="arch-box">Is the goal satisfied?</div>
+            <div class="arch-branches">
+              <div class="arch-branch good"><strong>Yes → Finish</strong><br>Verify the result</div>
+              <div class="arch-branch retry"><strong>Not yet → Continue</strong><br>Plan the next step</div>
+            </div>
+          </div>
+          <p class="arch-note">A real system also needs a safe way to stop or ask for help when it cannot proceed reliably.</p>
+        </div>
+        <p>The agent doesn't necessarily need a complex neural network for every part of this process.</p>
+        <p>For example, the LLM might decide which database query to execute, while ordinary Python code calculates growth rates and projects exhaustion dates.</p>
+        <div class="highlight">
+          <span class="label">An important engineering principle</span>
+          <p>Use probabilistic intelligence to decide what to investigate; use deterministic software wherever correctness can be established through precise computation.</p>
+        </div>
+      </section>
+
+      <section class="section" id="why">
+        <div class="section-kicker"><span class="number">03</span> The motivation</div>
+        <h2>Why Is Agent Programming Needed?</h2>
+        <p>Because many real-world problems cannot be completely specified in advance.</p>
+        <p>Imagine writing traditional software to investigate every possible reason for a database performance regression. You would need to anticipate:</p>
+        <ul>
+          <li>Changes in data distribution.</li>
+          <li>Missing or outdated statistics.</li>
+          <li>New access plans.</li>
+          <li>Different query structures.</li>
+          <li>Unexpected interactions between workloads.</li>
+          <li>Hardware and memory constraints.</li>
+          <li>Unusual combinations of these conditions.</li>
+        </ul>
+        <p>The number of possible combinations becomes enormous.</p>
+        <p>An agent offers a different approach: give it a collection of reliable tools and let it choose which investigations are relevant to the observed situation.</p>
+        <p>This is especially valuable when a task requires several rounds of investigation and the next step depends on the previous result.</p>
+        <p>However, agents are not always necessary. If a workflow is completely predictable, inexpensive, and well understood, a conventional program is often faster, cheaper, and more reliable.</p>
+        <div class="highlight">
+          <span class="label">The sweet spot</span>
+          <p>The sweet spot for agents is a problem with a clear objective but an unpredictable path toward the answer.</p>
+        </div>
+      </section>
+
+      <section class="section" id="applications">
+        <div class="section-kicker"><span class="number">04</span> Beyond the usual examples</div>
+        <h2>Five Unusual Applications</h2>
+        <p>Customer-service chatbots, coding assistants, and travel planners are easy to imagine. The more interesting question is what happens when we give agents goals that require investigation, connecting evidence, and deciding what to do next.</p>
+        <p>Here are five possibilities to stretch the imagination—from discovering unexpected experiments to finding early disease signals and identifying gaps in scientific knowledge. Each begins with a “sweet spot” prompt: a goal broad enough to require investigation, but bounded by a clear outcome.</p>
+
+        <div class="application-list">
+          <div class="application">
+            <div class="app-number">01</div>
+            <div>
+              <h3>The Scientific Agent That Discovers Experiments Humans Wouldn't Think to Perform</h3>
+              <p class="app-field"><strong>Field:</strong> Molecular biology, biophysics, drug discovery</p>
+              <p>Imagine an agent investigating why certain cancer cells become resistant to a particular treatment. It could connect findings across papers, molecular pathways, experimental datasets, and competing hypotheses—then propose experiments that distinguish between explanations researchers may not have considered.</p>
+              <p class="app-tease"><em>The intriguing possibility:</em> An agent that doesn't just analyze existing results, but helps discover which experiment should happen next.</p>
+              <div class="prompt"><b>Sweet spot prompt</b>“Investigate why these cancer cells may be developing resistance to this treatment. Review the available evidence and competing mechanisms, identify the most important uncertainties, and propose a ranked set of experiments that could distinguish between the hypotheses. Explain what each experiment would reveal, what result would challenge your hypothesis, and what evidence is still missing.”</div>
+            </div>
+          </div>
+          <div class="application">
+            <div class="app-number">02</div>
+            <div>
+              <h3>The Agent That Reconstructs the Hidden Electrical Logic of the Brain</h3>
+              <p class="app-field"><strong>Field:</strong> Neuroscience, computational biology, dynamical systems</p>
+              <p>Imagine asking why a particular neural circuit transitioned from one activity pattern to another. An agent could examine neural recordings, timing, connectivity, and computational models to compare possible explanations for the transition—and suggest which measurements might help separate them.</p>
+              <p class="app-tease"><em>The intriguing possibility:</em> Treating brain activity not as a static picture, but as a changing electrical and dynamical system whose behavior can be investigated.</p>
+              <div class="prompt"><b>Sweet spot prompt</b>“Analyze these neural activity recordings and the available information about the circuit. Identify when the activity pattern changes, compare plausible mechanisms that could explain the transition, and propose analyses or experiments that could distinguish them. Separate observations from hypotheses and state what the data cannot establish.”</div>
+            </div>
+          </div>
+          <div class="application">
+            <div class="app-number">03</div>
+            <div>
+              <h3>The Agent That Finds the Earliest Detectable Signs of a Future Disease</h3>
+              <p class="app-field"><strong>Field:</strong> Preventive medicine, longitudinal data science, causal inference</p>
+              <p>Many diseases develop over years before they become clinically obvious. Given appropriately authorized, de-identified longitudinal health datasets, a research agent could look for combinations of subtle changes that tend to appear before diagnosis—and test whether those signals generalize beyond the data in which they were found.</p>
+              <p class="app-tease"><em>The intriguing possibility:</em> Looking for patterns that precede disease, rather than waiting for the disease to become obvious. Such patterns would be research signals, not diagnoses or proof of causation.</p>
+              <div class="prompt"><b>Sweet spot prompt</b>“Using these authorized, de-identified longitudinal datasets, investigate which combinations of changes may precede the clinical onset of this disease by several years. Check data quality and potential confounders, test whether candidate signals generalize to separate cohorts, and distinguish predictive association from causal evidence. Do not present a research signal as an individual diagnosis.”</div>
+            </div>
+          </div>
+          <div class="application">
+            <div class="app-number">04</div>
+            <div>
+              <h3>The Digital Ecosystem That Investigates Its Own Failures Before Humans Notice Them</h3>
+              <p class="app-field"><strong>Field:</strong> Complex systems, autonomous infrastructure, reliability engineering</p>
+              <p>Imagine an agent responsible for the reliability of a large computing environment containing databases, applications, network services, operating systems, data pipelines, AI models, and storage systems. Its job is not simply to alert an administrator when a component fails. It continuously looks for emerging failure patterns, connects clues across systems, estimates possible consequences, and recommends interventions before a small problem becomes an incident.</p>
+              <p class="app-tease"><em>The intriguing possibility:</em> An entire digital environment that investigates its own warning signs—while keeping risky changes behind explicit safeguards and approval.</p>
+              <div class="prompt"><b>Sweet spot prompt</b>“Continuously examine the available telemetry, logs, dependencies, and recent changes across this environment. Detect emerging failure patterns, identify likely causes with supporting evidence, estimate potential consequences, and recommend the safest next diagnostic step or intervention. Do not make high-impact changes without the required authorization.”</div>
+            </div>
+          </div>
+          <div class="application">
+            <div class="app-number">05</div>
+            <div>
+              <h3>The Agent That Discovers What Scientific Knowledge Is Missing</h3>
+              <p class="app-field"><strong>Field:</strong> Knowledge representation, philosophy of science, automated research</p>
+              <p>Scientific literature contains findings, assumptions, unresolved contradictions, and questions that fall between established research areas. An agent could map claims and the evidence supporting them, find where explanations depend on untested assumptions, and identify gaps that could be turned into tractable research questions.</p>
+              <p class="app-tease"><em>The intriguing possibility:</em> Not just finding answers in the scientific record, but helping researchers see which important questions the record still cannot answer.</p>
+              <div class="prompt"><b>Sweet spot prompt</b>“Map the major claims, evidence, and open questions in this research area. Identify contradictions, unsupported assumptions, and connections between subfields that may reveal a knowledge gap. For each candidate gap, explain why it matters, what evidence would help resolve it, and how to test whether the gap is genuinely unresolved rather than simply missing from this collection of sources.”</div>
+            </div>
+          </div>
+        </div>
+        <p class="footnote">These are illustrative possibilities, not claims that a fully reliable implementation already exists. Each would depend on suitable data, tools, evaluation, and carefully defined permissions.</p>
+      </section>
+
+      <section class="section" id="reality">
+        <div class="section-kicker"><span class="number">05</span> The engineering reality</div>
+        <h2>Agents Are a Design Choice, Not a Destination</h2>
+        <p>Agent programming does not make conventional software obsolete. Agents can choose the wrong action, misinterpret evidence, repeat unproductive steps, or produce a confident answer that is not supported by the data.</p>
+        <p>They also introduce costs: additional model calls, latency, complexity, and a need to evaluate intermediate steps. For consequential actions, permissions, verification, and human approval may be essential.</p>
+        <p>The goal is not to make every program autonomous. It is to build systems that can investigate situations where the best next step depends on what they discover—while keeping the execution reliable, observable, and bounded.</p>
+      </section>
+
+      <div class="closing">
+        <div class="section-kicker"><span class="number">THE BIG IDEA</span></div>
+        <h2>From Executing Instructions to Pursuing Goals</h2>
+        <p>Agent programming changes the relationship between a programmer and a workflow. Instead of specifying every step in advance, we define a goal, equip a system with useful tools, establish boundaries, and allow it to choose some of the steps based on evidence and feedback.</p>
+        <p>The promise isn't that software suddenly becomes infallible or human. It's that software can take on more of the investigative work required to solve problems whose paths cannot be fully scripted in advance.</p>
+      </div>
+    </article>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Agent Programming · Concepts, architecture, applications</span>
+      <span>Designed for thoughtful reading</span>
+    </div>
+  </footer>
+</div>
+</body>
+</html>
