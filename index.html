@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Askari Naqvi | Ideas Worth Thinking About</title>
+<title>Askari Naqvi | Ideas & Music</title>
 <style>
 :root {
   --navy: #142b4a;
@@ -61,6 +60,47 @@ h2 { font: bold 28px Arial; color: var(--navy); }
 .article p { color: var(--muted); }
 a { color: var(--teal); text-decoration: none; font-weight: bold; }
 a:hover { text-decoration: underline; }
+.music-section {
+  margin-top: 65px;
+  padding-top: 42px;
+  border-top: 1px solid #dce4ee;
+}
+.music-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #142b4a, #087f78);
+  color: white;
+  border-radius: 18px;
+  padding: 36px;
+  margin: 25px 0;
+  box-shadow: 0 12px 30px #142b4a18;
+}
+.music-card .category { color: #bfe9e1; }
+.music-card h3 {
+  margin: 12px 0;
+  color: white;
+  font: bold clamp(26px,4vw,34px)/1.2 Arial;
+}
+.music-card p {
+  max-width: 620px;
+  color: #e4edf6;
+  font: 17px/1.7 Arial;
+}
+.music-link {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 13px 20px;
+  border-radius: 999px;
+  background: white;
+  color: #142b4a;
+  font: bold 14px Arial;
+  transition: transform .2s ease, background .2s ease;
+}
+.music-link:hover {
+  background: #e8f5f2;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
 footer {
   text-align: center;
   padding: 35px;
@@ -70,7 +110,6 @@ footer {
 </style>
 </head>
 <body>
-
 <header>
   <div class="container">
     <div class="eyebrow">ASKARI NAQVI · PERSONAL WRITING</div>
@@ -84,7 +123,6 @@ footer {
 
 <main>
   <h2>Selected writing</h2>
-
   <article class="article">
     <div class="category">Society · Personal</div>
     <h3>Protect the Men We Love from the Manosphere</h3>
@@ -97,7 +135,7 @@ footer {
       Read the article →
     </a>
   </article>
-  
+
   <article class="article">
     <div class="category">Technology · AI</div>
     <h3>Agent Programming: Beyond Traditional Software</h3>
@@ -111,10 +149,27 @@ footer {
     </a>
   </article>
 
+  <section class="music-section" aria-labelledby="music-heading">
+    <h2 id="music-heading">Music &amp; Performance</h2>
+    <article class="music-card">
+      <div class="category">Music · YouTube</div>
+      <h3>Music with Askari</h3>
+      <p>
+        A musical space for melodies, musical explorations and performances.
+        Come listen, explore and join me on the musical journey.
+      </p>
+      <a class="music-link"
+         href="https://www.youtube.com/@musicwithaskari"
+         target="_blank"
+         rel="noopener noreferrer">
+        Visit my YouTube music channel ↗
+      </a>
+    </article>
+  </section>
 </main>
 
 <footer>
-  © 2026 Askari Naqvi · Personal writing
+  © 2026 Askari Naqvi · Writing & Music
 </footer>
 
 </body>
